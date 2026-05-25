@@ -4,6 +4,7 @@ import { categories, menuItems } from './data/menuData';
 import ProductCard from './components/ProductCard';
 import CartSidebar from './components/CartSidebar';
 import OrderSuccessOverlay from './components/OrderSuccessOverlay';
+import OrderHistoryModal from './components/OrderHistoryModal';
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
@@ -11,6 +12,9 @@ function App() {
   const [selectedTip, setSelectedTip] = useState(0);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [orderHistory, setOrderHistory] = useState([]);
+  const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(false);
+  const [latestOrder, setLatestOrder] = useState(null);
 
   // Add to cart or increment if exists
   const handleAddToCart = (product) => {
@@ -47,14 +51,28 @@ function App() {
 
   const handlePlaceOrder = () => {
     if (cartItems.length > 0) {
+      const itemTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const gst = itemTotal * 0.05;
+      const grandTotal = itemTotal + gst + selectedTip;
+
+      const newOrder = {
+        id: `#ORD-${Math.floor(10000 + Math.random() * 90000)}`,
+        timestamp: new Date().toLocaleString(),
+        items: [...cartItems],
+        total: grandTotal
+      };
+
+      setOrderHistory((prev) => [newOrder, ...prev]);
+      setLatestOrder(newOrder);
+
+      setCartItems([]);
+      setSelectedTip(0);
       setIsOrderPlaced(true);
       setIsCartOpen(false);
     }
   };
 
   const handleResetOrder = () => {
-    setCartItems([]);
-    setSelectedTip(0);
     setIsOrderPlaced(false);
   };
 
@@ -158,8 +176,22 @@ function App() {
 
       {/* Success Overlay */}
       {isOrderPlaced && (
-        <OrderSuccessOverlay onReset={handleResetOrder} />
+        <OrderSuccessOverlay
+          order={latestOrder}
+          onReset={handleResetOrder}
+          onViewHistory={() => {
+            setIsOrderPlaced(false);
+            setIsOrderHistoryOpen(true);
+          }}
+        />
       )}
+
+      {/* Order History Modal */}
+      <OrderHistoryModal
+        isOpen={isOrderHistoryOpen}
+        onClose={() => setIsOrderHistoryOpen(false)}
+        orderHistory={orderHistory}
+      />
     </div>
   );
 }
