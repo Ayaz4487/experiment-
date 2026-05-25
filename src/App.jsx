@@ -72,11 +72,15 @@ const MOCK_PRODUCTS = [
   }
 ];
 
+import PastOrdersDrawer from './components/PastOrdersDrawer';
+
 function App() {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isPastOrdersOpen, setIsPastOrdersOpen] = useState(false);
   const [isOrderSuccess, setIsOrderSuccess] = useState(false);
   const [selectedTip, setSelectedTip] = useState(0);
+  const [pastOrders, setPastOrders] = useState([]);
 
   // Cart Operations
   const handleAddToCart = (product) => {
@@ -106,6 +110,19 @@ function App() {
   const cartItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   const handlePlaceOrder = () => {
+    const itemTotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    const gst = itemTotal * 0.05;
+    const grandTotal = itemTotal + gst + selectedTip;
+
+    const newOrder = {
+      id: Date.now(),
+      date: new Date().toLocaleString(),
+      items: [...cartItems],
+      total: grandTotal,
+    };
+
+    setPastOrders((prev) => [newOrder, ...prev]);
+
     setCartItems([]);
     setSelectedTip(0);
     setIsCartOpen(false);
@@ -118,7 +135,11 @@ function App() {
 
   return (
     <div className="min-h-screen bg-black text-gray-100 font-sans selection:bg-yellow-500 selection:text-black">
-      <Header cartItemCount={cartItemCount} onCartClick={() => setIsCartOpen(true)} />
+      <Header
+        cartItemCount={cartItemCount}
+        onCartClick={() => setIsCartOpen(true)}
+        onPastOrdersClick={() => setIsPastOrdersOpen(true)}
+      />
 
       <main>
         {/* Hero Section */}
@@ -151,6 +172,12 @@ function App() {
         selectedTip={selectedTip}
         onTipSelect={setSelectedTip}
         onPlaceOrder={handlePlaceOrder}
+      />
+
+      <PastOrdersDrawer
+        isOpen={isPastOrdersOpen}
+        onClose={() => setIsPastOrdersOpen(false)}
+        pastOrders={pastOrders}
       />
 
       {isOrderSuccess && <OrderSuccess onNewOrder={handleNewOrder} />}

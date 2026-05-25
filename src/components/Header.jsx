@@ -1,6 +1,6 @@
 
 
-const Header = ({ cartItemCount, onCartClick }) => {
+const Header = ({ cartItemCount, onCartClick, onPastOrdersClick }) => {
   return (
     <header className="bg-gray-900 border-b border-gray-800 py-4 px-6 sticky top-0 z-40 shadow-md">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -11,9 +11,23 @@ const Header = ({ cartItemCount, onCartClick }) => {
           </span>
         </div>
 
-        {/* Cart Icon */}
-        <button
-          onClick={onCartClick}
+        {/* Actions */}
+        <div className="flex items-center space-x-4">
+          {/* Past Orders Icon */}
+          <button
+            onClick={onPastOrdersClick}
+            className="p-2 text-gray-300 hover:text-white transition-colors focus:outline-none flex items-center group"
+            aria-label="View Past Orders"
+            title="Past Orders"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:text-yellow-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+
+          {/* Cart Icon */}
+          <button
+            onClick={onCartClick}
           className="relative p-2 text-gray-300 hover:text-white transition-colors focus:outline-none"
           aria-label="Open Cart"
         >
@@ -38,7 +52,8 @@ const Header = ({ cartItemCount, onCartClick }) => {
               {cartItemCount}
             </span>
           )}
-        </button>
+          </button>
+        </div>
       </div>
     </header>
   );
